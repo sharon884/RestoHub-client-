@@ -1,19 +1,35 @@
-import * as React from "react"
+// src/components/ui/input.tsx (CORRECTED)
 
+import * as React from "react"
+import type { InputHTMLAttributes, FC } from "react"; // Added type imports
 import { cn } from "@/lib/utils"
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+// Define custom props to include the optional label
+interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string; 
+}
+
+// Update the component definition to use the new props
+const Input = React.forwardRef<HTMLInputElement, CustomInputProps>(
+  ({ className, type, label, ...props }, ref) => { // Destructure 'label'
     return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className
+      <div className="space-y-1">
+        {/* Render the label if it exists */}
+        {label && (
+          <label htmlFor={props.id || props.name} className="block text-sm font-medium text-gray-700">
+            {label}
+          </label>
         )}
-        ref={ref}
-        {...props}
-      />
+        <input
+          type={type}
+          className={cn(
+            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            className
+          )}
+          ref={ref}
+          {...props}
+        />
+      </div>
     )
   }
 )
