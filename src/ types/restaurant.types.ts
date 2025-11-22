@@ -1,32 +1,62 @@
 // src/types/restaurant.types.ts
 
-// These mirror the enums defined in your backend restaurant.schema.ts
+// 1. Basic Types
 export type CuisineType = 'Italian' | 'Mexican' | 'Indian' | 'Japanese' | 'Other';
 export type PriceRangeType = '£' | '££' | '£££' | '££££';
 
-// Interface for the data collected by the form and sent to the API
+// 2. Constant Options (Used for Dropdowns)
+export const CUISINE_OPTIONS: CuisineType[] = ['Italian', 'Mexican', 'Indian', 'Japanese', 'Other'];
+export const PRICE_OPTIONS: PriceRangeType[] = ['£', '££', '£££', '££££'];
+
+// 3. Interface for the Restaurant Object (From Database)
+export interface Restaurant {
+  _id: string;
+  name: string;
+  address: string;
+  description: string;
+  cuisine: CuisineType;
+  priceRange: PriceRangeType;
+  imageUrl?: string;
+  averageRating: number;
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  createdAt: string;
+  updatedAt?: string;
+}
+
+// 4. Interface for Filters (Used in Explore Page)
+export interface RestaurantFilters {
+  page: number;
+  limit: number;
+  search?: string;
+  cuisine?: string;
+  priceRange?: string;
+}
+
+// 5. Interface for API Response (Pagination)
+export interface PaginatedResponse {
+  success: boolean;
+  message: string;
+  data: Restaurant[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+// 6. Interface for Form Data (Used in Add Restaurant Page)
 export interface RestaurantFormData {
   name: string;
   address: string;
   description: string;
-  latitude: number | ''; // Use '' for initial form state, will be converted to number on submit
+  latitude: number | ''; 
   longitude: number | '';
   cuisine: CuisineType | '';
   priceRange: PriceRangeType | '';
-  imageUrl?: string;
+  imageFile?: File | null; 
+  imageUrl: string; 
 }
-
-// Interface for the successful response from the backend (what we get back after adding a restaurant)
-export interface RestaurantResponse {
-  _id: string;
-  name: string;
-  address: string;
-  cuisine: CuisineType;
-  priceRange: PriceRangeType;
-  averageRating: number;
-  // ... other fields like createdAt, updatedAt
-}
-
-// Define the options for the dropdowns
-export const CUISINE_OPTIONS: CuisineType[] = ['Italian', 'Mexican', 'Indian', 'Japanese', 'Other'];
-export const PRICE_OPTIONS: PriceRangeType[] = ['£', '££', '£££', '££££'];

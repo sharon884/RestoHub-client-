@@ -1,15 +1,17 @@
+// src/App.tsx (UPDATED)
+
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-// import Navbar from "./components/Navbar/Navbar";
-// import Footer from "./components/Footer/Footer";
 import AppRoutes from "./router/AppRoutes";
+import { UserLocationProvider } from "./context/UserLocationContext"; // 1. IMPORT
 
 function App() {
   return (
     <BrowserRouter>
-      {/* <Navbar /> */}
-      <AppRoutes />
-      {/* <Footer /> */}
+      {/* 2. WRAP the entire app with the location provider */}
+      <UserLocationProvider> 
+        <AppRoutes />
+      </UserLocationProvider>
     </BrowserRouter>
   );
 }
