@@ -80,3 +80,19 @@ export const getRestaurants = async (filters: RestaurantFilters): Promise<Pagina
         throw new Error('Failed to fetch restaurants');
     }
 };
+
+
+
+export const getRestaurantById = async (id: string): Promise<Restaurant> => {
+    try {
+        // The backend route is /:id, so we append the ID to the base URL
+        const response = await axios.get<{ success: boolean; data: Restaurant }>(
+            `${API_BASE_URL}/${id}`
+        );
+        
+        return response.data.data;
+    } catch (error) {
+        console.error("Fetch Detail Error:", error);
+        throw new Error('Failed to fetch restaurant details');
+    }
+};
