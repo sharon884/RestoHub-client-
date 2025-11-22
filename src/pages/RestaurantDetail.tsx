@@ -1,17 +1,20 @@
 // src/pages/RestaurantDetail.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRestaurantById } from '../api/restaurant.api';
 
-// FIX: Strict type imports
-import type { Restaurant } from '../ types/restaurant.types';
+// NEW IMPORT: Map Component
+import RestaurantMap from '../components/Map/RestaurantMap'; 
 
-import Navbar from '../components/Navbar/Navbar';
-import Footer from '../components/Footer/Footer';
+// Existing imports (Ensure you use 'type' for Restaurant)
+import type { Restaurant } from '../ types/restaurant.types';
+import Navbar from '../components/Navbar/Navbar'; // Assuming you have this
+import Footer from '../components/Footer/Footer'; // Assuming you have this
 import { Button } from '../components/ui/button';
 
 const RestaurantDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get ID from URL
+  const { id } = useParams<{ id: string }>(); 
   const navigate = useNavigate();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -20,10 +23,15 @@ const RestaurantDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchDetail = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        setError("Invalid restaurant ID.");
+        return;
+      }
       try {
         setLoading(true);
-        const data = await getRestaurantById(id);
+        // Assuming getRestaurantById is correctly implemented in restaurant.api.ts
+        const data = await getRestaurantById(id); 
         setRestaurant(data);
       } catch (err) {
         setError('Could not load restaurant details.');
@@ -99,14 +107,12 @@ const RestaurantDetail: React.FC = () => {
 
                 {/* Right Column: Location & Actions */}
                 <div className="bg-gray-50 p-6 rounded-lg h-fit">
-                    <h3 className="font-semibold text-gray-900 mb-4">Location Details</h3>
-                    <p className="text-gray-600 mb-4 text-sm">{restaurant.address}</p>
+                    <h3 className="font-semibold text-gray-900 mb-4">Location</h3>
+                    <p className="text-gray-600 mb-4 text-sm font-medium">{restaurant.address}</p>
                     
-                    {/* Simple Map Placeholder or Coordinate display */}
-                    <div className="bg-gray-200 h-40 rounded-md flex items-center justify-center text-gray-500 text-xs mb-4">
-                        Map View <br/>
-                        Lat: {restaurant.location.coordinates[1].toFixed(4)} <br/>
-                        Lng: {restaurant.location.coordinates[0].toFixed(4)}
+                    {/* 👇 MAP INTEGRATION: Define a height (h-64) for the container */}
+                    <div className="h-64 rounded-md mb-4 shadow-md overflow-hidden">
+                       <RestaurantMap restaurant={restaurant} />
                     </div>
 
                     <Button className="w-full" size="lg">
