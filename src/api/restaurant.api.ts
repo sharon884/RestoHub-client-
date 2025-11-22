@@ -1,68 +1,82 @@
-// src/api/restaurant.api.ts (Corrected with Axios)
+// src/api/restaurant.api.ts
 
-// 1. Import Axios
 import axios from 'axios'; 
-// Use 'import type' for type-only imports
-import type { RestaurantFormData, RestaurantResponse } from '../ types/restaurant.types';
+import type { 
+    RestaurantFormData, 
+    Restaurant, // <--- WE USE THIS NOW
+    PaginatedResponse, 
+    RestaurantFilters 
+} from '../ types/restaurant.types'; // FIX: Removed space after 'from'
 
-// Assuming your environment variable is set correctly
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/restaurants';
 
-// Interface for API error structure, which is common for Express backends
+// Interface for API error structure
 interface ApiErrorResponse {
     message: string;
-    errors?: any; // e.g., detailed Zod validation errors
+    errors?: any; 
 }
 
 /**
- * Submits new restaurant data to the backend API using Axios.
+ * Submits new restaurant data to the backend API.
  */
-export const addRestaurant = async (data: RestaurantFormData): Promise<RestaurantResponse> => {
+// FIX: Return type is now Promise<Restaurant>
+export const addRestaurant = async (data: RestaurantFormData): Promise<Restaurant> => {
     
     const payload = {
         ...data,
-        // Ensure conversion to Number as required by your Zod schema/controller
         latitude: Number(data.latitude),
         longitude: Number(data.longitude),
-        // Note: imageFile is excluded here since it's only for the form, 
-        // and we only send the final imageUrl
     };
 
     try {
-        // 2. Use axios.post()
-        // We type the expected response data structure based on the backend controller
+        // FIX: Typed the response to expect 'restaurant: Restaurant'
         const response = await axios.post<
-            { message: string; restaurant: RestaurantResponse }
+            { message: string; restaurant: Restaurant }
         >(
             API_BASE_URL, 
-            payload // Axios serializes this object to JSON automatically
+            payload 
         );
         
-        // Axios automatically throws an error for non-2xx status codes.
-        // On success (201 CREATED), the data is in response.data.
         return response.data.restaurant;
         
     } catch (error) {
         let errorMessage = 'A network error occurred or the server is unreachable.';
 
-        // 3. Robust Axios Error Handling
         if (axios.isAxiosError(error)) {
             if (error.response) {
-                // The server responded with a status code outside the 2xx range (e.g., 400, 500)
                 const errorData: ApiErrorResponse = error.response.data;
-                
-                // Use the error message from the backend (e.g., from Zod validation)
                 errorMessage = errorData.message || `Request failed with status ${error.response.status}.`;
             } else if (error.request) {
-                // The request was made but no response was received (e.g., server offline)
                 errorMessage = 'No response received from the server.';
             }
         } else if (error instanceof Error) {
-            // General JavaScript error
             errorMessage = error.message;
         }
 
-        // Re-throw the error to be handled by the component (AddRestaurantForm.tsx)
         throw new Error(errorMessage);
+    }
+};
+
+/**
+ * Fetches restaurants with filters and pagination.
+ */
+export const getRestaurants = async (filters: RestaurantFilters): Promise<PaginatedResponse> => {
+    try {
+        const params: Record<string, any> = {
+            page: filters.page,
+            limit: filters.limit,
+        };
+
+        // Only add filters if they have values
+        if (filters.search) params.search = filters.search;
+        if (filters.cuisine) params.cuisine = filters.cuisine;
+        if (filters.priceRange) params.priceRange = filters.priceRange;
+
+        const response = await axios.get<PaginatedResponse>(API_BASE_URL, { params });
+        
+        return response.data;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        throw new Error('Failed to fetch restaurants');
     }
 };
