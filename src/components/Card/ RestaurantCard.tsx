@@ -4,6 +4,7 @@ import React from 'react';
 // FIX 1: Added 'type' keyword
 // FIX 2: Removed the space in the path ('../../ types' -> '../../types')
 import type { Restaurant } from '../../ types/restaurant.types'; 
+import { useNavigate } from 'react-router-dom';
 
 import { 
   Card, 
@@ -20,6 +21,9 @@ interface Props {
 }
 
 const RestaurantCard: React.FC<Props> = ({ restaurant }) => {
+
+    const navigate = useNavigate();
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
       {/* Image Section */}
@@ -58,7 +62,7 @@ const RestaurantCard: React.FC<Props> = ({ restaurant }) => {
       </CardContent>
 
       <CardFooter>
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" variant="outline" onClick={() => navigate(`/restaurant/${restaurant._id}`)} >
             View Details
         </Button>
       </CardFooter>
